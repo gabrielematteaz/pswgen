@@ -1,144 +1,115 @@
 #include "mttopt.h"
 
-int mttopt_extract_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv)
+int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv)
 {
-	char **av, **avc, *arg, *a, ac, argmode, copymode;
+	char **av, **avc, *arg, *a;
 	struct mttopt_opt_t *ov, *ovc;
+	uint8_t ac, flags;
 
-	if (argv != NULL && optv != NULL)
+	if (argv == NULL || optv == NULL) return 0;
+
+	av = argv + 1;
+	avc = argv + argc;
+	ovc = optv + optc;
+	
+	while (av < avc)
 	{
-		if (argc <= 0)
+		arg = *av;
+
+		if (*arg == '-')
 		{
-			av = argv + 1;
+			a = arg + 1;
 
-			while (*av != NULL) av++;
-
-			argc = av - argv;
-		}
-
-		av = argv + 1;
-		avc = argv + argc;
-
-		if (optc <= 0)
-		{
-			ov = optv;
-
-			while (ov->val) ov++;
-
-			optc = ov - optv;
-		}
-
-		ovc = optv + optc;
-		
-		while (av < avc)
-		{
-			arg = *av;
-
-			if (*arg == '-')
+			if (*a == '-')
 			{
-				a = arg + 1;
+				av++;
 
-				if (*a == '-')
+				break;
+			}
+
+			ac = *a;
+
+			while (ac)
+			{
+				ov = optv;
+
+				while (ov < ovc)
 				{
-					av++;
-
-					break;
-				}
-
-				ac = *a;
-
-				while (ac)
-				{
-					ov = optv;
-
-					while (ov < ovc)
+					if (ac == ov->shrt)
 					{
-						if (ac == ov->val)
+						flags = ov->flags;
+
+						if (ov->found)
 						{
-							if (ov->status == FOUND)
+							if (flags & OPT_FLAGS_IGNORE_COPIES)
 							{
-								copymode = ov->copymode;
-
-								if (copymode == IGNORE_COPIES)
+								if (flags & OPT_FLAGS_CAN_HAVE_ARG)
 								{
-									argmode = ov->argmode;
-
-									switch (argmode)
-									{
-									case MUST_HAVE_ARG:
-										a++;
-										ac = *a;
-
-										if (ac == 0) av++;
-									case CAN_HAVE_ARG:
-										goto next;
-									}
-
-									break;
-								}
-								else if (copymode == EXIT_ON_COPY)
-								{
-									av++;
-
-									if (ov->argmode == MUST_HAVE_ARG)
+									if (flags & OPT_FLAGS_MUST_HAVE_ARG)
 									{
 										a++;
-										ac = *a;
 
-										if (ac == 0) av++;
+										if (*a == 0) av++;
 									}
 
-									goto exit;
+									goto next;
 								}
+
+								break;
 							}
-
-							ov->status = FOUND;
-							argmode = ov->argmode;
-
-							if (argmode == CAN_HAVE_ARG)
+							else if (flags & OPT_FLAGS_EXIT_ON_COPY)
 							{
-								a++;
-								ac = *a;
-								ov->arg = ac ? a : NULL;
+								av++;
 
-								goto next;
+								if (flags & OPT_FLAGS_MUST_HAVE_ARG)
+								{
+									a++;
+
+									if (*a == 0) av++;
+								}
+
+								goto exit;
 							}
-							else if (argmode == MUST_HAVE_ARG)
-							{
-								a++;
-								ac = *a;
+						}
 
-								if (ac) ov->arg = a;
+						ov->found = 1;
+
+						if (flags & OPT_FLAGS_CAN_HAVE_ARG)
+						{
+							a++;
+
+							if ((flags & OPT_FLAGS_MUST_HAVE_ARG) == 12)
+							{
+								if (*a) ov->arg = a;
 								else
 								{
 									av++;
 									ov->arg = *av;
 								}
-								
-								goto next;
 							}
+							else ov->arg = *a ? a : NULL;
 
-							ov->arg = NULL;
-
-							break;
+							goto next;
 						}
 
-						ov++;
+						ov->arg = NULL;
+
+						break;
 					}
 
-					a++;
-					ac = *a;
+					ov++;
 				}
+
+				a++;
+				ac = *a;
 			}
-			else break;
-
-		next:
-			av++;
 		}
+		else break;
 
-	exit:
-		return av - argv;
+	next:
+		av++;
 	}
 
-	return 0;
+exit:
+	return av - argv;
 }

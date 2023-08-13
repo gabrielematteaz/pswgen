@@ -1,37 +1,24 @@
 #ifndef MTTOPT_H
 #define MTTOPT_H
 
+#include <stdint.h>
 #include <stddef.h>
-
-enum mttopt_opt_copymode_t
-{
-	OVERWRITE_ON_COPY,
-	IGNORE_COPIES,
-	EXIT_ON_COPY,
-};
-
-enum mttopt_opt_argmode_t
-{
-	HAS_NO_ARG,
-	CAN_HAVE_ARG,
-	MUST_HAVE_ARG,
-};
-
-enum mttopt_opt_status_t
-{
-	NOT_FOUND,
-	FOUND,
-};
 
 struct mttopt_opt_t
 {
-	int val;
-	enum mttopt_opt_copymode_t copymode;
-	enum mttopt_opt_argmode_t argmode;
-	enum mttopt_opt_status_t status;
-	char *arg;
+	uint8_t shrt;
+	uint8_t flags;
+	uint8_t found;
+	const char *arg;
 };
 
-int mttopt_extract_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv);
+#define OPT_FLAGS_OVERWRITE_ON_COPY 0
+#define OPT_FLAGS_IGNORE_COPIES 1
+#define OPT_FLAGS_EXIT_ON_COPY 2
+#define OPT_FLAGS_HAS_NO_ARG 0
+#define OPT_FLAGS_CAN_HAVE_ARG 4
+#define OPT_FLAGS_MUST_HAVE_ARG 12
+
+int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv);
 
 #endif
