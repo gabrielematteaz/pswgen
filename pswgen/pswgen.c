@@ -7,13 +7,13 @@
 int main(int argc, char *argv[])
 {
 	struct mttopt_opt_t optv[] = {
-		{ 'u', OPT_FLAGS_MUST_HAVE_ARG, 0 },
-		{ 'l', OPT_FLAGS_MUST_HAVE_ARG, 0 },
-		{ 'n', OPT_FLAGS_MUST_HAVE_ARG, 0 },
-		{ 's', OPT_FLAGS_MUST_HAVE_ARG, 0 }
+		{ 'u', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL },
+		{ 'l', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL },
+		{ 'n', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL },
+		{ 's', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL }
 	};
 
-	struct mttstr_fmt_t optfmt = { 10, '+', '-', ' ', FMT_FLAGS_LEFT_FILL };
+	struct mttstr_fmt_t optfmt = { 10, '+', 0, ' ', FMT_FLAGS_LEFT_FILL };
 	size_t ucase, lcase, num, sym, pswsize;
 	char *psw, *p, *ps, syms[] = { ' ', '_', '-', ',', ';', ':', '!', '?', '.', '\'', '"', '(', ')', '[', ']', '{', '}', '@', '*', '/', '\\', '&', '#', '%', '`', '^', '+', '<', '=', '>', '|', '~', '$' };
 
@@ -25,61 +25,60 @@ int main(int argc, char *argv[])
 	pswsize = ucase + lcase + num + sym;
 	psw = malloc(pswsize + 1);
 
-	if (psw)
+	if (psw == NULL) return 1;
+
+	p = psw;
+	ps = p + pswsize;
+	srand(time(NULL));
+
+	while (1)
 	{
-		p = psw;
-		ps = p + pswsize;
-		srand(time(NULL));
-
-		while (1)
+		switch (rand() % 4)
 		{
-			switch (rand() % 4)
+		case 0:
+			if (ucase)
 			{
-			case 0:
-				if (ucase)
-				{
-					ucase--;
-					*p = 'A' + rand() % 26;
-					p++;
-				}
-
-				break;
-			case 1:
-				if (lcase)
-				{
-					lcase--;
-					*p = 'a' + rand() % 26;
-					p++;
-				}
-
-				break;
-			case 2:
-				if (num)
-				{
-					num--;
-					*p = '0' + rand() % 10;
-					p++;
-				}
-
-				break;
-			case 3:
-				if (sym)
-				{
-					sym--;
-					*p = syms[rand() % sizeof(syms)];
-					p++;
-				}
-
-				break;
+				ucase--;
+				*p = 'A' + rand() % 26;
+				p++;
 			}
 
-			if (p == ps) break;
+			break;
+		case 1:
+			if (lcase)
+			{
+				lcase--;
+				*p = 'a' + rand() % 26;
+				p++;
+			}
+
+			break;
+		case 2:
+			if (num)
+			{
+				num--;
+				*p = '0' + rand() % 10;
+				p++;
+			}
+
+			break;
+		case 3:
+			if (sym)
+			{
+				sym--;
+				*p = syms[rand() % sizeof(syms)];
+				p++;
+			}
+
+			break;
 		}
 
-		*p = 0;
-		puts(psw);
-		free(psw);
+		if (p == ps) break;
 	}
+
+	*p = 0;
+	puts(psw);
+	free(psw);
 
 	return 0;
 }
