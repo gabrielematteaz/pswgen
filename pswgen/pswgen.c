@@ -1,5 +1,5 @@
-#include "../mttlib/mttopt/mttopt.h"
-#include "../mttlib/mttstr/mttstr.h"
+#include "../mttopt/include/mttopt.h"
+#include "../mttstr/include/mttstr.h"
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
@@ -7,28 +7,28 @@
 int main(int argc, char *argv[])
 {
 	struct mttopt_opt_t optv[] = {
-		{ 'u', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL },
-		{ 'l', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL },
-		{ 'n', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL },
-		{ 's', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL }
+		{ 'u', OPT_FS_MUST_HAVE_ARG, 0 },
+		{ 'l', OPT_FS_MUST_HAVE_ARG, 0 },
+		{ 'n', OPT_FS_MUST_HAVE_ARG, 0 },
+		{ 's', OPT_FS_MUST_HAVE_ARG, 0 }
 	};
 
-	struct mttstr_fmt_t optfmt = { 10, '+', 0, ' ', FMT_FLAGS_LEFT_FILL };
-	size_t ucase, lcase, num, sym, pswsize;
-	char *psw, *p, *ps, syms[] = { ' ', '_', '-', ',', ';', ':', '!', '?', '.', '\'', '"', '(', ')', '[', ']', '{', '}', '@', '*', '/', '\\', '&', '#', '%', '`', '^', '+', '<', '=', '>', '|', '~', '$' };
+	struct mttstr_fmt_t opt = { '+', 0, ' ', 10, FMT_FS_LEFT_FILL };
 
 	mttopt_extr_optv(argc, argv, 4, optv);
-	ucase = optv[0].found ? mttstr_fstr_to_ival(optv[0].arg, NULL, optfmt) : 4;
-	lcase = optv[1].found ? mttstr_fstr_to_ival(optv[1].arg, NULL, optfmt) : 4;
-	num = optv[2].found ? mttstr_fstr_to_ival(optv[2].arg, NULL, optfmt) : 4;
-	sym = optv[3].found ? mttstr_fstr_to_ival(optv[3].arg, NULL, optfmt) : 4;
-	pswsize = ucase + lcase + num + sym;
-	psw = malloc(pswsize + 1);
+
+	size_t ucase = optv[0].found ? mttstr_fstr_to_ival(optv[0].arg, NULL, opt) : 4;
+	size_t lcase = optv[1].found ? mttstr_fstr_to_ival(optv[1].arg, NULL, opt) : 4;
+	size_t num = optv[2].found ? mttstr_fstr_to_ival(optv[2].arg, NULL, opt) : 4;
+	size_t sym = optv[3].found ? mttstr_fstr_to_ival(optv[3].arg, NULL, opt) : 4;
+	size_t pswsize = ucase + lcase + num + sym;
+	char *psw = malloc(pswsize + 1);
 
 	if (psw == NULL) return 1;
 
-	p = psw;
-	ps = p + pswsize;
+	char *p = psw, *ps = p + pswsize;
+	char syms[] = { ' ', '_', '-', ',', ';', ':', '!', '?', '.', '\'', '"', '(', ')', '[', ']', '{', '}', '@', '*', '/', '\\', '&', '#', '%', '`', '^', '+', '<', '=', '>', '|', '~', '$' };
+
 	srand(time(NULL));
 
 	while (1)
