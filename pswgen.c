@@ -2,9 +2,8 @@
 #include "mtt/str.h"
 #include <Windows.h>
 #include <bcrypt.h>
-#include <stdio.h>
 
-typedef NTSTATUS (*RNGPROC)(BCRYPT_ALG_HANDLE, PUCHAR, ULONG, ULONG);
+typedef NTSTATUS (*rngproc_t)(BCRYPT_ALG_HANDLE, PUCHAR, ULONG, ULONG);
 
 int main(int argc, char *argv[])
 {
@@ -39,7 +38,7 @@ int main(int argc, char *argv[])
 	}
 
 	char *psw = GlobalLock(glmem), *p = psw, *ps = p + pswsize, syms[] = { ' ', '_', '-', ',', ';', ':', '!', '?', '.', '\'', '"', '(', ')', '[', ']', '{', '}', '@', '*', '/', '\\', '&', '#', '%', '`', '^', '+', '<', '=', '>', '|', '~', '$' };
-	RNGPROC rngproc = (RNGPROC)GetProcAddress(bcrypt, "BCryptGenRandom");
+	rngproc_t rngproc = (rngproc_t)GetProcAddress(bcrypt, "BCryptGenRandom");
 
 	while (p < ps)
 	{
