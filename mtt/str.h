@@ -1,83 +1,32 @@
 #ifndef MTT_STR_H
 #define MTT_STR_H
 
-#include <stdexcept>
+#include <stddef.h>
 
-namespace mtt
+#define FMT_FS_LEFT_FILL 0x00
+#define FMT_FS_INTERNAL_FILL 0x01
+#define FMT_FS_RIGHT_FILL 0x02
+
+#define FMT_FS_UNK_CASE 0x00
+#define FMT_FS_UPPERCASE 0x04
+#define FMT_FS_LOWERCASE 0x0C
+
+#define FMT_FS_NO_NULL_TERM 0x10
+
+struct mtt_fmt_t
 {
-	class fstr_to_ival_fmt_t
-	{
-	public:
-		static constexpr int LEFT_FILL = 0x00;
-		static constexpr int INTERNAL_FILL = 0x01;
-		static constexpr int RIGHT_FILL = 0x02;
+	char plus;
+	char minus;
+	char fill;
+	char base;
+	int fs;
+	size_t width;
+};
 
-		static constexpr int UNK_CASE = 0x00;
-		static constexpr int UPPERCASE = 0x04;
-		static constexpr int LOWERCASE = 0x0C;
+void *mtt_mem_rev(void *mem, size_t n);
 
-		char plus;
-		char minus;
-		char fill;
-	
-	protected:
-		char base;
-	
-	public:
-		int fs;
+size_t mtt_fstr_to_ival(const char *fstr, const char **end, struct mtt_fmt_t fmt);
 
-		fstr_to_ival_fmt_t() noexcept
-			: plus('+'), minus('-'), fill(' '), base(10), fs(LEFT_FILL)
-		{
-
-		}
-
-		fstr_to_ival_fmt_t(char plus, char minus, char fill, char base, int fs)
-			: plus(plus), minus(minus), fill(fill), base(base < 2 || base > 36 ? throw std::invalid_argument("base") : base), fs(fs)
-		{
-
-		}
-
-		char get_base() const noexcept
-		{
-			return base;
-		}
-
-		bool set_base(char base) noexcept
-		{
-			if (base < 2 || base > 36) return false;
-
-			this->base = base;
-
-			return true;
-		}
-
-		std::size_t conv(const char *fstr, const char **end = nullptr) const noexcept;
-	};
-
-	class ival_to_fstr_fmt_t : public fstr_to_ival_fmt_t
-	{
-	public:
-		static constexpr int NO_NULL_TERM = 0x10;
-
-		std::size_t width;
-
-		ival_to_fstr_fmt_t() noexcept
-			: fstr_to_ival_fmt_t(0, '-', ' ', 10, LEFT_FILL), width(0)
-		{
-
-		}
-
-		ival_to_fstr_fmt_t(char plus, char minus, char fill, char base, int fs, std::size_t width)
-			: fstr_to_ival_fmt_t(plus, minus, fill, base, fs), width(width)
-		{
-
-		}
-
-		std::size_t conv(char *fstr, std::size_t ival) const noexcept;
-	};
-
-	void *mem_rev(void *mem, std::size_t n) noexcept;
-}
+size_t mtt_ival_to_fstr(char *fstr, size_t ival, struct mtt_fmt_t fmt);
 
 #endif
