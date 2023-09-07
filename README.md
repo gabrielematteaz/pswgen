@@ -7,6 +7,7 @@ Supported flags:
 - 'l' > Minimum number of lowercase letters
 - 'd' > Minimum number of digits
 - 's' > Minimum number of symbols (Used symbols: "~`! @#$%^&*()_-+={[}]|\:;"'<,>.?/");
+- 'c' > Copy to clipboard
 
 # Example
 Generate a password with 10 uppercase letters, no lowercase letters, 4 digits and 8 symbols
